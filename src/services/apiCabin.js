@@ -14,3 +14,20 @@ export async function getCobin(){
 
 }
           
+
+export async function deleteCabins(id){
+   
+
+  const {data, error } = await supabase
+  .from('cobins')
+  .delete()
+  .eq('id',id)
+          
+
+if(error){
+  console.log(error)
+  throw new Error('Cobin does not load')
+}
+  
+return data;
+}
