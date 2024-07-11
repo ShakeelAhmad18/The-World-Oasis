@@ -6,6 +6,8 @@ import Button from "../../ui/Button";
 import FileInput from "../../ui/FileInput";
 import Textarea from "../../ui/Textarea";
 import { useForm } from "react-hook-form";
+import { useCreateCabin } from "./useCreateCabin";
+
 
 const FormRow = styled.div`
   display: grid;
@@ -44,18 +46,20 @@ const Error = styled.span`
 `;
 
 function CreateCabinForm() {
-    
+
     const {register,handleSubmit} = useForm()
-  
+    const {createCabin,isLoading:isCreating}=useCreateCabin()
+
     function onSubmit(data){
-       console.log(data)
+       createCabin({...data, image: data.image[0]})
     }
+
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       <FormRow>
         <Label htmlFor="name">Cabin name</Label>
-        <Input type="text" id="name" />
+        <Input type="text" id="name" {...register('name')} />
       </FormRow>
 
       <FormRow>
@@ -75,12 +79,12 @@ function CreateCabinForm() {
 
       <FormRow>
         <Label htmlFor="description">Description for website</Label>
-        <Textarea type="number" id="description" defaultValue="" {...register('description')}/>
+        <Textarea type="number" id="description" disabled={isCreating} defaultValue="" {...register('description')}/>
       </FormRow>
 
       <FormRow>
         <Label htmlFor="image">Cabin photo</Label>
-        <FileInput id="image" accept="image/*" />
+        <FileInput id="image" accept="image/*" {...register("image",{required:'This field is required'})}/>
       </FormRow>
 
       <FormRow>
@@ -88,7 +92,7 @@ function CreateCabinForm() {
         <Button variation="secondary" type="reset">
           Cancel
         </Button>
-        <Button>Add cabin</Button>
+        <Button disabled={isCreating}>Add cabin</Button>
       </FormRow>
     </Form>
   );

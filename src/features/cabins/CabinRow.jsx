@@ -1,9 +1,10 @@
 import styled from "styled-components";
 import {PropTypes} from 'prop-types'
 import { formatCurrency } from "../../utils/helpers";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteCabins } from "../../services/apiCabin";
-import toast from "react-hot-toast";
+import { useDeleteCabin } from "./useDeleteCabin";
+import { HiPencil, HiTrash } from "react-icons/hi";
+import { HiSquare2Stack } from "react-icons/hi2";
+import { useCreateCabin } from "./useCreateCabin";
 
 const TableRow = styled.div`
   display: grid;
@@ -51,21 +52,21 @@ CabinRow.propTypes={
 
 export default function CabinRow({data}){
    
-  const {id,name,regularPrice,maxCapacity,image,discount}=data;
-  const queryClient=useQueryClient()
+  const {id,name,regularPrice,maxCapacity,image,discount,description}=data;
+  const {isLoading,deleteCabins}=useDeleteCabin()
+    
+  const {createCabin,isCreating}= useCreateCabin()
 
-  const {isLoading,mutate}=useMutation({
-    mutationFn:(id)=>deleteCabins(id),
-    onSuccess:()=>{
-      toast.success('cabin succesfully deleted')
-      queryClient.invalidateQueries({
-        queryKey:['cabins']
-      })
-    },
-
-    onError:(err)=>toast.error(err.message)
-  
-  })
+  function handleDeplicateCabin(){
+    createCabin({
+     name:`Copy of ${name}`,
+     regularPrice,
+     maxCapacity,
+     image,
+     discount,
+     description,
+    })
+  }
 
   return (
     <TableRow>
@@ -73,8 +74,12 @@ export default function CabinRow({data}){
        <Cabin>{name}</Cabin>
        <div>Fit up to {maxCapacity} guests</div>
        <Price>{formatCurrency(regularPrice)}</Price>
-       <Discount>{formatCurrency(discount)}</Discount>
-       <button onClick={()=>mutate(id)} disabled={isLoading}>Delete</button>
+      {discount ? <Discount>{formatCurrency(discount)}</Discount> : <span>&mdash;</span> }
+      <div>
+        <button disabled={isCreating} onClick={()=>handleDeplicateCabin()}><HiSquare2Stack/></button>
+        <button><HiPencil/></button>
+       <button onClick={()=>deleteCabins(id)} disabled={isLoading}><HiTrash/></button>
+       </div>
     </TableRow>
   )
 }
